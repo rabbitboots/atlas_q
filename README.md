@@ -136,6 +136,31 @@ Try to add more slices to the array atlas's ArrayImage.
 **Returns:** `true` on success, `false` if the new slice count would exceed th system's max *texturelayers*.
 
 
+# Usage Notes
+
+## Texture continuity
+
+The act of enlarging an atlas or giving it more array slices causes a *new* texture to be created internally. Any SpriteBatches which use this texture should be updated to reference the new texture.
+
+Do something like this after a successful call to `enlarge()` or `addSlices()`, and before the next batch draw:
+
+```lua
+if sprite_batch:getTexture() ~= atlas.tex then
+	sprite_batch:setTexture(atlas.tex)
+	-- Clear and re-add all sprites.
+end
+```
+
+Likewise, if you used the texture as a shader variable, that needs to be updated as well.
+
+AtlasQ passes the following settings from the old texture to the new one:
+* Wrap state
+* Texture filter state
+* Mipmap Filter state
+
+Additionally, the texture `settings` table passed in `atlasQ.newAtlas()` is stored in `atlas.tex_settings`, and will be used when creating the new texture.
+
+
 # MIT License
 
 MIT License

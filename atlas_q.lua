@@ -68,6 +68,14 @@ local function errTooManySlices(arg_n)
 end
 
 
+local function copyTextureSettings(old_tex, new_tex)
+
+	new_tex:setFilter(old_tex:getFilter())
+	new_tex:setMipmapFilter(old_tex:getMipmapFilter())
+	new_tex:setWrap(old_tex:getWrap())
+end
+
+
 -- * / General *
 
 
@@ -118,8 +126,10 @@ function _mt_aq:enlarge()
 	new_i_data:paste(self.i_data, 0, 0, 0, 0, self.i_data:getWidth(), self.i_data:getHeight())
 	self.i_data = new_i_data
 
-	-- Make a new image.
+	-- Make a new image, and copy over some state from the old one.
+	local old_tex = self.tex
 	self.tex = love.graphics.newImage(self.i_data, self.tex_settings)
+	copyTextureSettings(old_tex, self.tex)
 
 	-- [[DBG]] print("_mt_aq:enlarge: NEW TEXTURE DIMENSIONS: " .. self.tex:getWidth() .. ", " .. self.tex:getHeight())
 
@@ -235,7 +245,9 @@ function _mt_aqa:enlarge()
 		self.i_data_slices[i] = new_i_data
 	end
 
+	local old_tex = self.tex
 	self.tex = love.graphics.newArrayImage(self.i_data_slices, self.tex_settings)
+	copyTextureSettings(old_tex, self.tex)
 
 	-- [[DBG]] print("_mt_aqa:enlarge: NEW TEXTURE DIMENSIONS: " .. self.tex:getWidth() .. ", " .. self.tex:getHeight())
 
@@ -260,7 +272,9 @@ function _mt_aqa:addSlices(count)
 		self.i_data_slices[i] = love.image.newImageData(q1.w, q1.h, self.pixel_format)
 	end
 
+	local old_tex = self.tex
 	self.tex = love.graphics.newArrayImage(self.i_data_slices, self.tex_settings)
+	copyTextureSettings(old_tex, self.tex)
 
 	for i = 1, #self.i_data_slices do
 		self.dirty_slices[i] = false
